@@ -32,11 +32,27 @@ monitor.start()
     #return owner_password
 
 def validate_password():
-    owner_password = SS.sending_OTP()
-    password = input("Please enter the OTP given to you: ")
+    owner_password = SS.sending_OTP()  # Define owner_password outside the loop
+    max_attempts = 3
 
-    if owner_password == password:
-        EZ_lock()
+    for attempt in range(max_attempts):
+        password = input('Please enter password: ')
+
+        if password == owner_password:
+            print("Access Granted! ")
+            EZ_Lock()
+            return  # Exit the function if the password is correct
+
+        remaining_attempts = max_attempts - (attempt + 1)  # Corrected calculation
+        if remaining_attempts > 0:
+            print(f"Incorrect! You have {remaining_attempts} attempt(s) left.")
+        else:
+            print(f"You have 0 attempts left. Sorry, you are locked out!")
+            sys.exit()
+
+    # If the loop completes without the correct password, notify the owner and exit
+    print("Owner is notified of suspicious activity!")
+    sys.exit()
 
 
 def EZ_lock():
@@ -103,35 +119,7 @@ def main():
 
      #counter = 1
     ir_val = 0
-    max_attempts = 3
-    owner_password = SS.sending_OTP()
-
-    for attempt in range(max_attempts):
-
-        if owner_password == password:
-            EZ_lock()
-            break
-
-        else:
-            remaining_attempts = max_attempts - attempt
-
-            if remaining_attempts == 0:
-                print(f'You have exceeded the number of attempts, you are locked out! Owner is notified!')
-                SS.sus_inform()
-                sys.exit(1)
-
-            else:
-                if 0 < remaining_attempts < 3:
-                    a_input = input(f"You have {remaining_attempts} left, would you like to try again? ")
-
-                    if a_input == 'yes' or a_input == 'y':
-                        continue
-                        #validate_password()
-
-                    elif a_input == 'no' or a_input == 'n':
-                        print("You are locked out! Owner is notified of this suspicious activity! ")
-                        SS.sus_inform()
-                        sys.exit(1)
+    validate_password()
 
     ir_val = irSensor.getCountValue()
 
